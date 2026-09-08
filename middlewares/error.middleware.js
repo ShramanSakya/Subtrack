@@ -21,7 +21,7 @@ const errorMiddleware = (err, req, res, next) => {
       const message = Object.values(err.errors)
         .map((val) => val.message)
         .join(", ");
-      error = new Error(message.join(", "));
+      error = new Error(message);
       error.statusCode = 400;
     }
     res
