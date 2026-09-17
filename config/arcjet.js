@@ -2,6 +2,7 @@ import arcjet from "@arcjet/node";
 import { shield } from "@arcjet/node";
 import { detectBot } from "@arcjet/node";
 import { tokenBucket } from "@arcjet/node";
+import { validateEmail } from "@arcjet/node";
 import { ARCJET_KEY } from "./env.js";
 
 const aj = arcjet({
@@ -31,6 +32,26 @@ const aj = arcjet({
       refillRate: 5, // Refill 5 tokens per interval
       interval: 10, // Refill every 10 seconds
       capacity: 10, // Bucket capacity of 10 tokens
+    }),
+  ],
+});
+
+export const signupArcjet = aj.withRule(
+  validateEmail({
+    mode: "LIVE",
+    deny: ["DISPOSABLE", "INVALID", "NO_MX_RECORDS"],
+  }),
+);
+
+export const subscriptionCreationArcjet = arcjet({
+  key: ARCJET_KEY,
+  characteristics: ["userId"],
+  rules: [
+    tokenBucket({
+      mode: "LIVE",
+      refillRate: 5,
+      interval: 60,
+      capacity: 2,
     }),
   ],
 });

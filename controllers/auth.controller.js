@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET, JWT_EXPIRES_IN } from "../config/env.js";
+import { signupArcjet } from "../config/arcjet.js";
 
 export const signUp = async (req, res, next) => {
   const session = await mongoose.startSession();
@@ -11,6 +12,16 @@ export const signUp = async (req, res, next) => {
   try {
     //logic to create a new user
     const { name, email, password } = req.body;
+
+    const emailDecision = await signupArcjet.protect(req, { email });
+
+    if (emailDecision.isDenied()) {
+      const error = new Error(
+        "Please use a valid, non-disposable email address",
+      );
+      error.statusCode = 400;
+      throw error;
+    }
 
     //check if user already exists
 

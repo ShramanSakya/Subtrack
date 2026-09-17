@@ -1,5 +1,6 @@
 import { Router } from "express";
 import authorize from "../middlewares/auth.middleware.js";
+import { subscriptionCreationRateLimit } from "../middlewares/arcjet.middleware.js";
 import {
   createSubscription,
   getUserSubscriptions,
@@ -15,7 +16,12 @@ subscriptionRouter.get("/:id", (req, res) =>
   res.send({ title: "GET subscription details" }),
 );
 
-subscriptionRouter.post("/", authorize, createSubscription);
+subscriptionRouter.post(
+  "/",
+  authorize,
+  subscriptionCreationRateLimit,
+  createSubscription,
+);
 
 subscriptionRouter.put("/:id", (req, res) =>
   res.send({ title: "UPDATE a subscription" }),

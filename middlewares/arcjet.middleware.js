@@ -1,4 +1,5 @@
 import aj from "../config/arcjet.js";
+import { subscriptionCreationArcjet } from "../config/arcjet.js";
 
 const arcjetMiddleware = async (req, res, next) => {
   try {
@@ -28,3 +29,23 @@ const arcjetMiddleware = async (req, res, next) => {
 };
 
 export default arcjetMiddleware;
+
+export const subscriptionCreationRateLimit = async (req, res, next) => {
+  try {
+    const decision = await subscriptionCreationArcjet.protect(req, {
+      userId: req.user._id.toString(),
+      requested: 1,
+    });
+
+    if (decision.isDenied() && decision.reason.isRateLimit()) {
+      return res.status(429).json({
+        error: "Too many subscriptions created. Please try again later.",
+      });
+    }
+
+    next();
+  } catch (error) {
+    console.log(`Subscription rate limit error: ${error}`);
+    next(error);
+  }
+};
